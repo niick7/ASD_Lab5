@@ -1,20 +1,39 @@
 package edu.mum.cs.cs525.labs.skeleton;
 
+import edu.mum.cs.cs525.labs.command.CommandManagement;
+import edu.mum.cs.cs525.labs.command.DepositCommand;
+import edu.mum.cs.cs525.labs.command.TransferFundsCommand;
+import edu.mum.cs.cs525.labs.command.WithdrawCommand;
+
 public class Application {
 	public static void main(String[] args) {
 		AccountService accountService = new AccountServiceImpl();
 
+		DepositCommand depositCommand = new DepositCommand(accountService);
+		WithdrawCommand withdrawCommand = new WithdrawCommand(accountService);
+		TransferFundsCommand transferFundsCommand = new TransferFundsCommand(accountService);
+
+		CommandManagement management = new CommandManagement();
+		management.setDepositCommand(depositCommand);
+		management.setWithdrawCommand(withdrawCommand);
+		management.setTransferFundsCommand(transferFundsCommand);
+
 		// create 2 accounts;
-		accountService.createAccount("1263862", "Frank Brown");
-		accountService.createAccount("4253892", "John Doe");
+		Account acc1 = accountService.createAccount("1263862", "Frank Brown");
+		Account acc2 = accountService.createAccount("4253892", "John Doe");
 		// use account 1;
-		accountService.deposit("1263862", 240);
-		accountService.deposit("1263862", 529);
-		accountService.withdraw("1263862", 230);
+		management.deposit(acc1.getAccountNumber(), 240);
+		management.deposit(acc1.getAccountNumber(), 529);
+		management.withdraw(acc1.getAccountNumber(), 230);
 		// use account 2;
-		accountService.deposit("4253892", 12450);
-		accountService.transferFunds("4253892", "1263862", 100, "payment of invoice 10232");
+		management.deposit(acc2.getAccountNumber(), 12450);
+		management.transferFunds(acc2.getAccountNumber(), acc1.getAccountNumber(), 100, "payment of invoice 10232");
 		// show balances
+
+		management.deposit(acc2.getAccountNumber(), 1000);
+		management.undo();
+		management.redo();
+		management.redo();
 
 		for (Account account : accountService.getAllAccounts()) {
 			Customer customer = account.getCustomer();
